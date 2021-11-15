@@ -1,7 +1,18 @@
 import axios from 'axios';
 
-type FetchDataParams = {
+type FetchUserDataParams = {
   code: string;
+}
+
+type FetchUserTokenResponse = {
+  access_token: string;
+}
+
+type FetchUserDataResponse = {
+  id: number;
+  avatar_url: string;
+  login: string;
+  name: string;
 }
 
 export class GithubApi {
@@ -10,8 +21,8 @@ export class GithubApi {
     private readonly clientSecret: string,
   ) { }
 
-  async fetchUserData({ code }: FetchDataParams) {
-    const { data } = await axios.post('https://github.com/login/oauth/access_token', null, {
+  async fetchUserData({ code }: FetchUserDataParams): Promise<FetchUserDataResponse> {
+    const { data: userTokenResponse } = await axios.post<FetchUserTokenResponse>('https://github.com/login/oauth/access_token', null, {
       params: {
         client_id: this.clientId,
         client_secret: this.clientSecret,
@@ -22,6 +33,12 @@ export class GithubApi {
       }
     });
 
-    return data;
+    const { data: userData } = await axios.get<FetchUserDataResponse>('https://api.github.com/user', {
+      headers: { 
+        authorization: `Bearer ${userTokenResponse.access_token}`,
+      }
+    });
+
+    return userData;
   }
 }
