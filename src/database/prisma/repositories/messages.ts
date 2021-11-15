@@ -12,4 +12,18 @@ export class MessagesRepository {
 
     return message;
   }
+
+  async findLastMessages(take: number): Promise<Message[]> {
+    const messages = await prismaClient.message.findMany({
+      take,
+      orderBy: {
+        created_at: "desc"
+      },
+      include: {
+        user: true,
+      }
+    })
+
+    return messages;
+  }
 }
