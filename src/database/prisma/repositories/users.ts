@@ -19,4 +19,14 @@ export class UsersRepository {
 
     return user;
   }
+
+  async findById(id: string): Promise<User> {
+    const user = await prismaClient.user.findFirst({
+      where: {
+        id,
+      }
+    })
+
+    return user;
+  }
 }
